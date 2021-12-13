@@ -3,6 +3,7 @@ package com.example.microServiceUser.Controller;
 import com.example.microServiceUser.Model.User;
 import com.example.microServiceUser.Repo.UserRepository;
 import com.example.microServiceUser.Repo.UserService;
+import com.example.microServiceUser.Utilities.UserModifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,19 @@ public class UserController {
     @GetMapping("/users")
     public List<User> listAll(){
         return (List<User>) userRepository.findAll();
+    }
+
+    @GetMapping("/users/login")
+    public boolean login(@RequestBody User logUser){
+        //controllo se la mail esiste e in caso mi faccio ritornare i dati dell'utente
+        Optional<User> customerOptional = userRepository.findByMail(logUser.getEmail());
+        return customerOptional.isPresent();
+    }
+
+    @GetMapping("/users/data")//se al login e stata confermata l'esistenza di utente si chiama questo metodo che passa tutti i dati
+    public User returnData(@RequestBody String mail){
+        Optional<User> customerOptional = userRepository.findByMail(mail);
+        return customerOptional.get();
     }
 
     //metodo per inserie un nuovo utente
@@ -58,16 +72,20 @@ public class UserController {
 
     //metodi per aggiornare un utente
     @PostMapping(value = "/users/changeMail")
-    public ResponseEntity<String> changeEmail(@RequestBody String oldMail,String newMail){
-        Optional<User> customerOptional = userRepository.findByMail(oldMail);
-        userService.updateUserEmail(customerOptional.get(),newMail);
+    public ResponseEntity<String> changeEmail(@RequestBody UserModifier userModifier){
+        Optional<User> customerOptional = userRepository.findByMail(userModifier.getMail());
+        User tmp = customerOptional.get();
+        tmp.setEmail(userModifier.getNewMail());
+        userRepository.save(tmp);
         return new ResponseEntity<>("email changed", HttpStatus.OK);
     }
 
     @PostMapping(value = "/users/changePassword")
-    public ResponseEntity<String> changePassword(@RequestBody String mail,String pass){
-        Optional<User> customerOptional = userRepository.findByMail(mail);
-        userService.updateUserPassword(customerOptional.get(),pass);
+    public ResponseEntity<String> changePassword(@RequestBody UserModifier userModifier){
+        Optional<User> customerOptional = userRepository.findByMail(userModifier.getMail());
+        User tmp = customerOptional.get();
+        tmp.setPassword(userModifier.getNewPassword());
+        userRepository.save(tmp);
         return new ResponseEntity<>("password changed", HttpStatus.OK);
     }
 

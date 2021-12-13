@@ -7,7 +7,7 @@
 #ENTRYPOINT ["sh", "./start.sh"]
 
 FROM openjdk:11
-VOLUME ["/app"]
+#VOLUME ["/app"]
 EXPOSE 8080
 ARG DEPENDENCY=target
 ADD ${DEPENDENCY}/*.jar microServiceUser.jar

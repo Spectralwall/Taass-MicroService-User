@@ -47,6 +47,7 @@ public class UserService {
                 throw  new IllegalStateException("email exist");
             }else {
                 user.setEmail(mail);
+
             }
         }
     }
