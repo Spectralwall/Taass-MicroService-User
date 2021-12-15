@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: microServiceUser
+server:
+  port: 8081
