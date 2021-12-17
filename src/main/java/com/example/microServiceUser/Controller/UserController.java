@@ -23,18 +23,21 @@ public class UserController {
     //metodo che ritorna tutti gli utenti
     @GetMapping("/users")
     public List<User> listAll(){
+        System.out.println("Micro service Users");
         return (List<User>) userRepository.findAll();
     }
 
     @GetMapping("/users/login")
-    public boolean login(@RequestBody User logUser){
+    public boolean login(@RequestBody User user){
+        System.out.println("Micro service Login");
         //controllo se la mail esiste e in caso mi faccio ritornare i dati dell'utente
-        Optional<User> customerOptional = userRepository.findByMail(logUser.getEmail());
+        Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         return customerOptional.isPresent();
     }
 
     @GetMapping("/users/data")//se al login e stata confermata l'esistenza di utente si chiama questo metodo che passa tutti i dati
     public User returnData(@RequestBody String mail){
+        System.out.println("Micro service Data");
         Optional<User> customerOptional = userRepository.findByMail(mail);
         return customerOptional.get();
     }
@@ -44,6 +47,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void create(@RequestBody User user){
         //controllo se la mail è gia presente
+        System.out.println("Micro service create");
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         if(customerOptional.isPresent()){//in caso ritorno un errore
             throw new IllegalStateException("mail taken");
@@ -55,6 +59,7 @@ public class UserController {
     // BASTA INVIARE LA MAIL MA SI PUO MODIFICARE SE SERVONO ALTRI DATI
     @DeleteMapping("/users/delete")
     public ResponseEntity<String> deleteCustomer(@RequestBody String mail) {
+        System.out.println("Micro service Delete");
         Optional<User> customerOptional = userRepository.findByMail(mail);
         if(customerOptional.isPresent()){//in caso ritorno un errore
             userRepository.deleteById(customerOptional.get().getId());
@@ -65,6 +70,7 @@ public class UserController {
     //metodo per pulire il db, TOGLIE TUTTI GLI UTENTI
     @DeleteMapping("/users/deleteAll")
     public ResponseEntity<String> deleteAllCustomers() {
+        System.out.println("Micro service Delete All");
         System.out.println("Delete All Customers...");
         userRepository.deleteAll();//cancelliamo tutti gli utenti
         return new ResponseEntity<>("All customers have been deleted!", HttpStatus.OK);
@@ -73,6 +79,7 @@ public class UserController {
     //metodi per aggiornare un utente
     @PostMapping(value = "/users/changeMail")
     public ResponseEntity<String> changeEmail(@RequestBody UserModifier userModifier){
+        System.out.println("Micro service change mail");
         Optional<User> customerOptional = userRepository.findByMail(userModifier.getMail());
         User tmp = customerOptional.get();
         tmp.setEmail(userModifier.getNewMail());
@@ -82,6 +89,7 @@ public class UserController {
 
     @PostMapping(value = "/users/changePassword")
     public ResponseEntity<String> changePassword(@RequestBody UserModifier userModifier){
+        System.out.println("Micro service change Password");
         Optional<User> customerOptional = userRepository.findByMail(userModifier.getMail());
         User tmp = customerOptional.get();
         tmp.setPassword(userModifier.getNewPassword());
