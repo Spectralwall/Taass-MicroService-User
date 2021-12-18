@@ -27,32 +27,35 @@ public class UserController {
         return (List<User>) userRepository.findAll();
     }
 
-    @GetMapping("/users/login")
-    public boolean login(@RequestBody User user){
+    @PostMapping("/users/login")
+    public ResponseEntity<String> login(@RequestBody User user){
         System.out.println("Micro service Login");
         //controllo se la mail esiste e in caso mi faccio ritornare i dati dell'utente
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
-        return customerOptional.isPresent();
+        if(!customerOptional.isPresent()){//in caso ritorno un errore
+            return new ResponseEntity<>("User dont exist", HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>("logged", HttpStatus.OK);
     }
 
-    @GetMapping("/users/data")//se al login e stata confermata l'esistenza di utente si chiama questo metodo che passa tutti i dati
-    public User returnData(@RequestBody String mail){
+    @PostMapping("/users/data")//se al login e stata confermata l'esistenza di utente si chiama questo metodo che passa tutti i dati
+    public ResponseEntity<User> returnData(@RequestBody String mail){
         System.out.println("Micro service Data");
         Optional<User> customerOptional = userRepository.findByMail(mail);
-        return customerOptional.get();
+        return new ResponseEntity<User>(customerOptional.get(), HttpStatus.OK);
     }
 
     //metodo per inserie un nuovo utente
     @PostMapping(value = "/users/create")
-    @ResponseStatus(HttpStatus.OK)
-    public void create(@RequestBody User user){
+    public ResponseEntity<String> create(@RequestBody User user){
         //controllo se la mail è gia presente
         System.out.println("Micro service create");
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         if(customerOptional.isPresent()){//in caso ritorno un errore
-            throw new IllegalStateException("mail taken");
+            return new ResponseEntity<>("Mail taken", HttpStatus.CONFLICT);
         }
         userRepository.save(user);//se non è presente salvo
+        return new ResponseEntity<>("User added", HttpStatus.OK);
     }
 
     //metodo che elimina un utente
