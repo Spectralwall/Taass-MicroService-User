@@ -31,11 +31,11 @@ public class UserController {
     public ResponseEntity<String> login(@RequestBody User user){
         System.out.println("Micro service Login");
         //controllo se la mail esiste e in caso mi faccio ritornare i dati dell'utente
-        Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
+        Optional<User> customerOptional = userRepository.findByMailAndPassword(user.getEmail(), user.getPassword());
         if(!customerOptional.isPresent()){//in caso ritorno un errore
-            return new ResponseEntity<>("User dont exist", HttpStatus.CONFLICT);
+            return new ResponseEntity<>("User doesn't exist", HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>("logged", HttpStatus.OK);
+        return new ResponseEntity<>("User logged", HttpStatus.OK);
     }
 
     @PostMapping("/users/data")//se al login e stata confermata l'esistenza di utente si chiama questo metodo che passa tutti i dati
@@ -52,10 +52,10 @@ public class UserController {
         System.out.println("Micro service create");
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         if(customerOptional.isPresent()){//in caso ritorno un errore
-            return new ResponseEntity<>("Mail taken", HttpStatus.CONFLICT);
+            return new ResponseEntity<>("Mail already in use", HttpStatus.CONFLICT);
         }
         userRepository.save(user);//se non è presente salvo
-        return new ResponseEntity<>("User added", HttpStatus.OK);
+        return new ResponseEntity<>("User account added", HttpStatus.OK);
     }
 
     //metodo che elimina un utente
