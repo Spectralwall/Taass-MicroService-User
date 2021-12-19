@@ -30,12 +30,19 @@ public class UserController {
     }
 
     @PostMapping("/users/session")
-    public ResponseEntity<String> session(@RequestBody HttpServletRequest request){
+    public ResponseEntity<String> checkSession(){
+        System.out.println("Session");
+
+        /*
         User tmp = (User)request.getSession().getAttribute("user");
+        System.out.println(tmp);
+
         if(tmp == null){
             return new ResponseEntity<>("session not exist", HttpStatus.UNAUTHORIZED);
         }
         System.out.println(tmp);
+
+         */
         return new ResponseEntity<>("session ok", HttpStatus.OK);
     }
 
@@ -69,7 +76,8 @@ public class UserController {
             return new ResponseEntity<>("Mail already in use", HttpStatus.CONFLICT);
         }
         userRepository.save(user);//se non è presente salvo
-        request.getSession().setAttribute("user",customerOptional.get());
+
+        request.getSession().setAttribute("user",user);
         return new ResponseEntity<>("User account added", HttpStatus.OK);
     }
 
