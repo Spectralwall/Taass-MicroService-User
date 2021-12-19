@@ -29,6 +29,16 @@ public class UserController {
         return (List<User>) userRepository.findAll();
     }
 
+    @PostMapping("/users/session")
+    public ResponseEntity<String> session(@RequestBody HttpServletRequest request){
+        User tmp = (User)request.getSession().getAttribute("user");
+        if(tmp == null){
+            return new ResponseEntity<>("session not exist", HttpStatus.UNAUTHORIZED);
+        }
+        System.out.println(tmp);
+        return new ResponseEntity<>("session ok", HttpStatus.OK);
+    }
+
     @PostMapping("/users/login")
     public ResponseEntity<String> login(@RequestBody User user,HttpServletRequest request){
         System.out.println("Micro service Login");
@@ -38,6 +48,7 @@ public class UserController {
             return new ResponseEntity<>("User doesn't exist", HttpStatus.UNAUTHORIZED);
         }
         request.getSession().setAttribute("user",customerOptional.get());
+        System.out.println("sessione creata, user:" + request.getSession().getAttribute("user"));
         return new ResponseEntity<>("logged", HttpStatus.OK);
     }
 
@@ -50,7 +61,7 @@ public class UserController {
 
     //metodo per inserie un nuovo utente
     @PostMapping(value = "/users/create")
-    public ResponseEntity<String> create(@RequestBody User user){
+    public ResponseEntity<String> create(@RequestBody User user,HttpServletRequest request){
         //controllo se la mail è gia presente
         System.out.println("Micro service create");
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
@@ -58,6 +69,7 @@ public class UserController {
             return new ResponseEntity<>("Mail already in use", HttpStatus.CONFLICT);
         }
         userRepository.save(user);//se non è presente salvo
+        request.getSession().setAttribute("user",customerOptional.get());
         return new ResponseEntity<>("User account added", HttpStatus.OK);
     }
 
