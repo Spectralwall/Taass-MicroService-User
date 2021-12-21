@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -16,7 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
-public class UserController {
+public class UserController{
 
     @Autowired
     UserRepository userRepository;
@@ -31,25 +33,22 @@ public class UserController {
 
     @PostMapping("/users/session")
     public ResponseEntity<String> session(@RequestBody HttpServletRequest request){
-        User tmp = (User)request.getSession().getAttribute("user");
-        if(tmp == null){
-            return new ResponseEntity<>("session not exist", HttpStatus.UNAUTHORIZED);
-        }
-        System.out.println(tmp);
+        HttpSession session = request.getSession();
+        System.out.println(session.getId());
         return new ResponseEntity<>("session ok", HttpStatus.OK);
     }
 
     @PostMapping("/users/login")
-    public ResponseEntity<String> login(@RequestBody User user,HttpServletRequest request){
+    public ResponseEntity<User> login(@RequestBody User user,HttpServletRequest request){
         System.out.println("Micro service Login");
         //controllo se la mail esiste e in caso mi faccio ritornare i dati dell'utente
         Optional<User> customerOptional = userRepository.findByMailAndPassword(user.getEmail(), user.getPassword());
         if(!customerOptional.isPresent()){//in caso ritorno un errore
-            return new ResponseEntity<>("User doesn't exist", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
-        request.getSession().setAttribute("user",customerOptional.get());
-        System.out.println("sessione creata, user:" + request.getSession().getAttribute("user"));
-        return new ResponseEntity<>("logged", HttpStatus.OK);
+
+        //System.out.println("sessione creata, user:" + request.getSession().getId());
+        return new ResponseEntity<>(customerOptional.get(), HttpStatus.OK);
     }
 
     @PostMapping("/users/data")//se al login e stata confermata l'esistenza di utente si chiama questo metodo che passa tutti i dati
@@ -69,7 +68,9 @@ public class UserController {
             return new ResponseEntity<>("Mail already in use", HttpStatus.CONFLICT);
         }
         userRepository.save(user);//se non è presente salvo
-        request.getSession().setAttribute("user",customerOptional.get());
+        //HttpSession session = request.getSession();
+        //session.setAttribute("user",customerOptional.get());
+        //System.out.println("sessione creata, user:" + request.getSession().getId());
         return new ResponseEntity<>("User account added", HttpStatus.OK);
     }
 
@@ -82,7 +83,7 @@ public class UserController {
         if(customerOptional.isPresent()){//in caso ritorno un errore
             userRepository.deleteById(customerOptional.get().getId());
         }
-        request.invalidate();
+        //request.invalidate();
         return new ResponseEntity<>("Customer has been deleted!", HttpStatus.OK);
     }
 
@@ -103,9 +104,9 @@ public class UserController {
         User tmp = customerOptional.get();
         tmp.setEmail(userModifier.getNewMail());
         userRepository.save(tmp);
-        User a = (User) session.getAttribute("user");
-        a.setEmail(userModifier.getNewMail());
-        session.setAttribute("user",a);
+        //User a = (User) session.getAttribute("user");
+        //a.setEmail(userModifier.getNewMail());
+        //session.setAttribute("user",a);
         return new ResponseEntity<>("email changed", HttpStatus.OK);
     }
 
@@ -116,9 +117,9 @@ public class UserController {
         User tmp = customerOptional.get();
         tmp.setPassword(userModifier.getNewPassword());
         userRepository.save(tmp);
-        User a = (User) session.getAttribute("user");
-        a.setPassword(userModifier.getNewPassword());
-        session.setAttribute("user",a);
+        //User a = (User) session.getAttribute("user");
+        //a.setPassword(userModifier.getNewPassword());
+        //session.setAttribute("user",a);
         return new ResponseEntity<>("password changed", HttpStatus.OK);
     }
 
