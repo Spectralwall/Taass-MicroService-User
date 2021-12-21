@@ -68,10 +68,11 @@ public class UserController{
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
         userRepository.save(user);//se non è presente salvo
+        Optional<User> newUser = userRepository.findByMail(user.getEmail());
         //HttpSession session = request.getSession();
         //session.setAttribute("user",customerOptional.get());
         //System.out.println("sessione creata, user:" + request.getSession().getId());
-        return new ResponseEntity<>(customerOptional.get(), HttpStatus.OK);
+        return new ResponseEntity<>(newUser.get(), HttpStatus.OK);
     }
 
     //metodo che elimina un utente
