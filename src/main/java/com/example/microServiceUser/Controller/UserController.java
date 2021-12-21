@@ -60,18 +60,18 @@ public class UserController{
 
     //metodo per inserie un nuovo utente
     @PostMapping(value = "/users/create")
-    public ResponseEntity<String> create(@RequestBody User user,HttpServletRequest request){
+    public ResponseEntity<User> create(@RequestBody User user,HttpServletRequest request){
         //controllo se la mail è gia presente
         System.out.println("Micro service create");
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         if(customerOptional.isPresent()){//in caso ritorno un errore
-            return new ResponseEntity<>("Mail already in use", HttpStatus.CONFLICT);
+            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
         userRepository.save(user);//se non è presente salvo
         //HttpSession session = request.getSession();
         //session.setAttribute("user",customerOptional.get());
         //System.out.println("sessione creata, user:" + request.getSession().getId());
-        return new ResponseEntity<>("User account added", HttpStatus.OK);
+        return new ResponseEntity<>(customerOptional.get(), HttpStatus.OK);
     }
 
     //metodo che elimina un utente
