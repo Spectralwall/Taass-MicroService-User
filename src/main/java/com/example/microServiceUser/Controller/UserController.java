@@ -119,6 +119,9 @@ public class UserController{
         if(!userModifier.getPassword().equals(tmp.getPassword())){
             return new ResponseEntity<>("password is different from db", HttpStatus.UNAUTHORIZED);
         }
+        if (userModifier.getNewPassword().equals(tmp.getPassword())) {
+            return new ResponseEntity<>("new Password is equal to old password", HttpStatus.UNAUTHORIZED);
+        }
         tmp.setPassword(userModifier.getNewPassword());
         userRepository.save(tmp);
         //User a = (User) session.getAttribute("user");
