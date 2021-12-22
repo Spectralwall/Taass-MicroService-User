@@ -4,15 +4,27 @@ public class UserModifier {
 
     public UserModifier(){}
 
+    private Long id;
+
     private String mail;
 
     private String newMail;
+
+    private String password;
 
     private String newPassword;
 
     private String newName;
 
     private String newSurName;
+
+    public Long getId(){
+        return id;
+    }
+
+    public void setId(Long id){
+        this.id = id;
+    }
 
     public String getMail() {
         return mail;
@@ -52,5 +64,13 @@ public class UserModifier {
 
     public void setNewSurName(String newSurName) {
         this.newSurName = newSurName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

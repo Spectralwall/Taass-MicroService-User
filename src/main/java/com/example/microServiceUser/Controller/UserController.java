@@ -115,8 +115,10 @@ public class UserController{
     @PostMapping(value = "/users/changePassword")
     public ResponseEntity<String> changePassword(@RequestBody UserModifier userModifier,HttpSession session){
         System.out.println("Micro service change Password");
-        Optional<User> customerOptional = userRepository.findByMail(userModifier.getMail());
-        User tmp = customerOptional.get();
+        User tmp = userRepository.findById(userModifier.getId()).get();
+        if(!userModifier.getPassword().equals(tmp.getPassword())){
+            return new ResponseEntity<>("password is different from db", HttpStatus.UNAUTHORIZED);
+        }
         tmp.setPassword(userModifier.getNewPassword());
         userRepository.save(tmp);
         //User a = (User) session.getAttribute("user");
