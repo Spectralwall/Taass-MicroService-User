@@ -22,6 +22,11 @@ services:
         - "5050:80"
       depends_on:
         - db
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   app:
     build: .
     image: microserviceuser
