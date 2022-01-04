@@ -15,8 +15,9 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class MicroServiceUserApplication {
 
-	static final String queueName = "spring-boot";
 	public static final String topicExchangeName = "spring-boot-exchange";
+
+	public static final String queueName = "spring-boot";
 
 	@Bean
 	Queue queue() {
