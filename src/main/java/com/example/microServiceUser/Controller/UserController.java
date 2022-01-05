@@ -88,6 +88,9 @@ public class UserController{
     public ResponseEntity<User> createGoogle(@RequestBody User user){
         //controllo se la mail è gia presente
         System.out.println("Micro service create Google");
+        if(user.getEmail().trim().length() > 0){
+            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+        }
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         if(customerOptional.isPresent()){//in caso ritorno un errore
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
@@ -99,14 +102,13 @@ public class UserController{
 
     //metodo che elimina un utente
     // BASTA INVIARE LA MAIL MA SI PUO MODIFICARE SE SERVONO ALTRI DATI
-    @DeleteMapping("/users/delete")
-    public ResponseEntity<String> deleteCustomer(@RequestBody String mail) {
+    @PostMapping("/users/delete")
+    public ResponseEntity<String> deleteCustomer(@RequestBody User user) {
         System.out.println("Micro service Delete");
-        Optional<User> customerOptional = userRepository.findByMail(mail);
+        Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         if(customerOptional.isPresent()){//in caso ritorno un errore
             userRepository.deleteById(customerOptional.get().getId());
         }
-        //request.invalidate();
         return new ResponseEntity<>("Customer has been deleted!", HttpStatus.OK);
     }
 
@@ -131,18 +133,18 @@ public class UserController{
     }
 
     @PostMapping(value = "/users/changePassword")
-    public ResponseEntity<String> changePassword(@RequestBody UserModifier userModifier){
+    public ResponseEntity<UserModifier> changePassword(@RequestBody UserModifier userModifier){
         System.out.println("Micro service change Password");
         User tmp = userRepository.findById(userModifier.getId()).get();
         if(!userModifier.getPassword().equals(tmp.getPassword())){
-            return new ResponseEntity<>("password is different from db", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         if (userModifier.getNewPassword().equals(tmp.getPassword())) {
-            return new ResponseEntity<>("new Password is equal to old password", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
         tmp.setPassword(userModifier.getNewPassword());
         userRepository.save(tmp);
-        return new ResponseEntity<>("password changed", HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 }
