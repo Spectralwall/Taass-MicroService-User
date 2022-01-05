@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -40,7 +39,7 @@ public class UserController{
     }
 
     @PostMapping("/users/login")
-    public ResponseEntity<User> login(@RequestBody User user,HttpServletRequest request){
+    public ResponseEntity<User> login(@RequestBody User user){
         System.out.println("Micro service Login");
         //controllo se la mail esiste e in caso mi faccio ritornare i dati dell'utente
         Optional<User> customerOptional = userRepository.findByMailAndPassword(user.getEmail(), user.getPassword());
@@ -52,8 +51,19 @@ public class UserController{
         return new ResponseEntity<>(customerOptional.get(), HttpStatus.OK);
     }
 
+    @PostMapping("/users/loginGoogle")
+    public ResponseEntity<User> loginGoogle(@RequestBody User user){
+        System.out.println("Micro service Login Google");
+        //controllo se la mail esiste e in caso mi faccio ritornare i dati dell'utente
+        Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
+        if(!customerOptional.isPresent()){//in caso ritorno un errore
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>(customerOptional.get(), HttpStatus.OK);
+    }
+
     @PostMapping("/users/data")//se al login e stata confermata l'esistenza di utente si chiama questo metodo che passa tutti i dati
-    public ResponseEntity<User> returnData(@RequestBody String mail,HttpSession session){
+    public ResponseEntity<User> returnData(@RequestBody String mail){
         System.out.println("Micro service Data");
         Optional<User> customerOptional = userRepository.findByMail(mail);
         return new ResponseEntity<User>(customerOptional.get(), HttpStatus.OK);
@@ -61,7 +71,7 @@ public class UserController{
 
     //metodo per inserie un nuovo utente
     @PostMapping(value = "/users/create")
-    public ResponseEntity<User> create(@RequestBody User user,HttpServletRequest request){
+    public ResponseEntity<User> create(@RequestBody User user){
         //controllo se la mail è gia presente
         System.out.println("Micro service create");
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
@@ -70,16 +80,27 @@ public class UserController{
         }
         userRepository.save(user);//se non è presente salvo
         Optional<User> newUser = userRepository.findByMail(user.getEmail());
-        //HttpSession session = request.getSession();
-        //session.setAttribute("user",customerOptional.get());
-        //System.out.println("sessione creata, user:" + request.getSession().getId());
+        return new ResponseEntity<>(newUser.get(), HttpStatus.OK);
+    }
+
+    //metodo per inserie un nuovo utente con bottone google
+    @PostMapping(value = "/users/createGoogle")
+    public ResponseEntity<User> createGoogle(@RequestBody User user){
+        //controllo se la mail è gia presente
+        System.out.println("Micro service create Google");
+        Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
+        if(customerOptional.isPresent()){//in caso ritorno un errore
+            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+        }
+        userRepository.save(user);//se non è presente salvo
+        Optional<User> newUser = userRepository.findByMail(user.getEmail());
         return new ResponseEntity<>(newUser.get(), HttpStatus.OK);
     }
 
     //metodo che elimina un utente
     // BASTA INVIARE LA MAIL MA SI PUO MODIFICARE SE SERVONO ALTRI DATI
     @DeleteMapping("/users/delete")
-    public ResponseEntity<String> deleteCustomer(@RequestBody String mail,HttpSession request) {
+    public ResponseEntity<String> deleteCustomer(@RequestBody String mail) {
         System.out.println("Micro service Delete");
         Optional<User> customerOptional = userRepository.findByMail(mail);
         if(customerOptional.isPresent()){//in caso ritorno un errore
@@ -100,20 +121,17 @@ public class UserController{
 
     //metodi per aggiornare un utente
     @PostMapping(value = "/users/changeMail")
-    public ResponseEntity<String> changeEmail(@RequestBody UserModifier userModifier,HttpSession session){
+    public ResponseEntity<String> changeEmail(@RequestBody UserModifier userModifier){
         System.out.println("Micro service change mail");
         Optional<User> customerOptional = userRepository.findByMail(userModifier.getMail());
         User tmp = customerOptional.get();
         tmp.setEmail(userModifier.getNewMail());
         userRepository.save(tmp);
-        //User a = (User) session.getAttribute("user");
-        //a.setEmail(userModifier.getNewMail());
-        //session.setAttribute("user",a);
         return new ResponseEntity<>("email changed", HttpStatus.OK);
     }
 
     @PostMapping(value = "/users/changePassword")
-    public ResponseEntity<String> changePassword(@RequestBody UserModifier userModifier,HttpSession session){
+    public ResponseEntity<String> changePassword(@RequestBody UserModifier userModifier){
         System.out.println("Micro service change Password");
         User tmp = userRepository.findById(userModifier.getId()).get();
         if(!userModifier.getPassword().equals(tmp.getPassword())){
@@ -124,9 +142,6 @@ public class UserController{
         }
         tmp.setPassword(userModifier.getNewPassword());
         userRepository.save(tmp);
-        //User a = (User) session.getAttribute("user");
-        //a.setPassword(userModifier.getNewPassword());
-        //session.setAttribute("user",a);
         return new ResponseEntity<>("password changed", HttpStatus.OK);
     }
 

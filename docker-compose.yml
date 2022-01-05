@@ -23,14 +23,6 @@ services:
         - "5050:80"
       depends_on:
         - db
-
-  rabbitmq:
-    image: rabbitmq:management
-    hostname: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-
   app:
     build:
       context: .                          #docker file path (. means root directory)
@@ -41,7 +33,6 @@ services:
       - "8081:8081"
     depends_on:
       - db
-      - rabbitmq
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/user
       - SPRING_DATASOURCE_USERNAME=admin
