@@ -31,13 +31,6 @@ public class UserController{
         return (List<User>) userRepository.findAll();
     }
 
-    @PostMapping("/users/session")
-    public ResponseEntity<String> session(@RequestBody HttpServletRequest request){
-        HttpSession session = request.getSession();
-        System.out.println(session.getId());
-        return new ResponseEntity<>("session ok", HttpStatus.OK);
-    }
-
     @PostMapping("/users/login")
     public ResponseEntity<User> login(@RequestBody User user){
         System.out.println("Micro service Login");
@@ -145,6 +138,20 @@ public class UserController{
         tmp.setPassword(userModifier.getNewPassword());
         userRepository.save(tmp);
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+    @PostMapping("/users/deleteUser")
+    public ResponseEntity<String> deleteUser(@RequestBody User user){
+        System.out.println("Micro service delete user");
+        //controllo se la mail esiste e in caso mi faccio ritornare i dati dell'utente
+        Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
+        if(!customerOptional.isPresent()){//in caso ritorno un errore
+            return new ResponseEntity<>("utente non presente nel db", HttpStatus.UNAUTHORIZED);
+        }
+
+        userRepository.delete(customerOptional.get());
+
+        return new ResponseEntity<>("user delete", HttpStatus.OK);
     }
 
 }
