@@ -67,6 +67,9 @@ public class UserController{
     public ResponseEntity<User> create(@RequestBody User user){
         //controllo se la mail è gia presente
         System.out.println("Micro service create");
+        if(user.getEmail().trim().length() > 0){
+            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+        }
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         if(customerOptional.isPresent()){//in caso ritorno un errore
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
@@ -81,9 +84,11 @@ public class UserController{
     public ResponseEntity<User> createGoogle(@RequestBody User user){
         //controllo se la mail è gia presente
         System.out.println("Micro service create Google");
+        /*
         if(user.getEmail().trim().length() > 0){
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
+         */
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
         if(customerOptional.isPresent()){//in caso ritorno un errore
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
