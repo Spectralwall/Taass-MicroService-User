@@ -67,7 +67,7 @@ public class UserController{
     public ResponseEntity<User> create(@RequestBody User user){
         //controllo se la mail è gia presente
         System.out.println("Micro service create");
-        if(user.getEmail().trim().length() <= 0){
+        if(user.getPassword().trim().length() <= 0){
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
         Optional<User> customerOptional = userRepository.findByMail(user.getEmail());
