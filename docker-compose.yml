@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: user
     networks:
-      - BACKEND
+      - backend
     ports:
       - "5432:5432"
   pgadmin:
@@ -25,14 +25,14 @@ services:
     depends_on:
       - db
     networks:
-      - BACKEND
+      - backend
   gateway:
     container_name: gateway
     image: apigateway
     ports:
       - "8080:8080"
     networks:
-      - BACKEND
+      - backend
   mongo:
     image: mongo:latest
     container_name: mongodb
@@ -45,7 +45,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=admin
       - MONGO_INITDB_DATABASE=dataHub
     networks:
-      - BACKEND
+      - backend
   microservicedata:
     build:
       context: .                          #docker file path (. means root directory)
@@ -57,7 +57,7 @@ services:
     depends_on:
       - mongo
     networks:
-      - BACKEND
+      - backend
     environment:
       - spring.data.mongodb.authentication-database=admin
       - spring.data.mongodb.username=admin
@@ -77,7 +77,7 @@ services:
     depends_on:
       - db
     networks:
-      - BACKEND
+      - backend
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/user
       - SPRING_DATASOURCE_USERNAME=admin
@@ -92,5 +92,5 @@ volumes:
   data : {}
 
 networks:
-  BACKEND:
-    name: BACKEND
+  backend:
+  
