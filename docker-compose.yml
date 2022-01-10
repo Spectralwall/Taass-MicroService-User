@@ -28,9 +28,12 @@ services:
       - backend
   gateway:
     container_name: gateway
-    image: apigateway
+    image: gabrielenaretto/apigateway
     ports:
       - "8080:8080"
+    labels:
+      kompose.service.type: NodePort
+      kompose.service.nodeport.port: "30000"
     networks:
       - backend
   mongo:
@@ -50,7 +53,7 @@ services:
     build:
       context: .                          #docker file path (. means root directory)
       dockerfile: Dockerfile
-    image: microservicedata
+    image: gabrielenaretto/microservicedata
     container_name: microServiceData
     ports:
       - "8082:8082"
@@ -70,7 +73,7 @@ services:
     build:
       context: .                          #docker file path (. means root directory)
       dockerfile: Dockerfile
-    image: microserviceuser
+    image: gabrielenaretto/microserviceuser
     container_name: microServiceUser
     ports:
       - "8081:8081"
